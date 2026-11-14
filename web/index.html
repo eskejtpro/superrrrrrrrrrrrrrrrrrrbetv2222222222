@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SUPERBETSSS LIVE Monitor</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">L</span><div><strong>SUPERBETSSS LIVE</strong><small>monitor meczów FIFA / e-piłka</small></div></div>
+      <div class="top-actions"><button id="notifyToggleChip" type="button" class="notify-chip"><span class="notify-dot" id="notifyTopDot"></span><span id="notifyTopLabel">Alerty przeglądarkowe</span></button><span id="connectionBadge" class="badge badge-warn">Łączenie…</span><button id="settingsBtn" class="icon-btn" title="Ustawienia">⚙</button></div>
+    </header>
+    <main>
+      <section class="hero"><div><p class="eyebrow">CENTRUM LIVE</p><h1>Aktualne mecze</h1><p class="muted">Wyłącznie wykryte mecze LIVE z Superbet. Automatyczna aktualizacja co 20 sekund.</p></div><div class="hero-meta"><div class="hero-times"><div class="time-row"><span>Aktualna godzina:</span><strong id="currentClock" class="mono-time">--:--:--</strong></div><div class="time-row"><span>Czas strony Superbet:</span><strong id="superbetClock" class="mono-time superbet-time">--:--:--</strong></div><div class="time-row"><span>Odświeżenie meczów za:</span><strong id="nextRefreshCountdown" class="mono-time refresh-time">20 s</strong></div><span id="lastUpdate">Ostatni odczyt panelu: —</span></div><div class="top-actions"><button id="demoBtn" class="secondary">Załaduj testowe</button><button id="refreshBtn" class="primary">Odśwież teraz</button></div></div></section>
+      <section class="stats-grid">
+        <article class="stat-card"><span class="stat-label">Mecze live</span><strong id="totalMatches">0</strong><span class="stat-note">w aktywnym źródle</span></article>
+        <article class="stat-card accent"><span class="stat-label">Najbliżej końca</span><strong id="nextMatch">—</strong><span id="nextMatchNote" class="stat-note">brak danych</span></article>
+        <article class="stat-card"><span class="stat-label">W drugiej połowie</span><strong id="secondHalf">0</strong><span class="stat-note">w tej chwili</span></article>
+        <article class="stat-card"><span class="stat-label">Stan źródła</span><strong id="sourceAge">—</strong><span id="sourceNote" class="stat-note">oczekiwanie</span></article>
+      </section>
+      <section id="notifyPanel" class="panel notify-panel">
+        <div class="panel-head notify-head">
+          <div>
+            <h2>Powiadomienia przeglądarkowe</h2>
+            <span id="notifyBgStatus" class="muted">Alerty w tle (Web Worker + Service Worker) — monitor może działać w zminimalizowanej karcie</span>
+          </div>
+          <div class="top-actions notify-actions">
+            <span id="notifyPermBadge" class="badge badge-warn">Sprawdzanie…</span>
+            <button id="requestNotifyBtn" type="button" class="primary">Włącz w przeglądarce</button>
+            <button id="testNotifyBtn" type="button" class="secondary">Wyślij test</button>
+            <button id="clearNotifyLogBtn" type="button" class="secondary">Wyczyść</button>
+            <button id="notifyCollapseBtn" type="button" class="secondary">Zwiń</button>
+          </div>
+        </div>
+        <div id="notifyBody" class="notify-body">
+          <div class="notify-controls">
+            <div class="notify-triggers">
+              <label class="notify-check notify-master"><input id="notifyEnabled" type="checkbox" checked> <strong>Alerty aktywne</strong></label>
+              <label class="notify-check"><input id="notifyPotential" type="checkbox" checked> <span class="legend-swatch" id="notifyPotentialSwatch"></span> Potencjalna przewaga 3+ goli (obecnie 2 gole)</label>
+              <label class="notify-check"><input id="notifyPrimary" type="checkbox" checked> <span class="legend-swatch" id="notifyPrimarySwatch"></span> Potwierdzona przewaga 3+ goli</label>
+              <label class="notify-check"><input id="notifyHighScoring" type="checkbox"> <span class="legend-swatch" id="notifyHighScoringSwatch"></span> Wysokie tempo bramkowe</label>
+              <label class="notify-check"><input id="notifyCloseFinish" type="checkbox"> <span class="legend-swatch" id="notifyCloseFinishSwatch"></span> Końcówka na styku</label>
+              <label class="notify-check"><input id="notifySound" type="checkbox" checked> Sygnał dźwiękowy</label>
+            </div>
+            <div class="notify-meta-row">
+              <label class="notify-cooldown-label">Odstęp między alertami dla tego samego meczu:
+                <select id="notifyCooldown">
+                  <option value="30">Co 30 s</option>
+                  <option value="60">Co 60 s</option>
+                  <option value="120" selected>Co 120 s</option>
+                  <option value="300">Co 300 s</option>
+                  <option value="0">Raz na mecz (lub po wzroście przewagi)</option>
+                </select>
+              </label>
+              <span id="notifyCountSummary" class="muted">Wysłano alertów: 0</span>
+            </div>
+          </div>
+          <div class="notify-feed-wrap">
+            <div class="notify-feed-head"><strong>Ostatnie wysłane alerty</strong><span class="muted">kliknij wpis, aby otworzyć szczegóły meczu</span></div>
+            <div id="notifyFeed" class="notify-feed"><p class="muted">Brak wysłanych alertów w tej sesji. Gdy mecz spełni kryteria „potencjalnej przewagi 3+ goli”, pojawi się powiadomienie systemowe i wpis tutaj.</p></div>
+          </div>
+        </div>
+      </section>
+      <section class="workspace">
+        <div class="panel list-panel">
+          <div class="panel-head"><div><h2>Mecze live</h2><span id="resultCount" class="muted">0 wyników</span></div><div class="view-toggle"><button class="view-btn active" data-view="table">Tabela</button><button class="view-btn" data-view="compact">Karty</button></div></div>
+          <div class="filters"><label class="search"><span>⌕</span><input id="searchInput" type="search" placeholder="Szukaj drużyny, gracza lub ligi"></label><select id="halfFilter"><option value="all">Wszystkie połowy</option><option value="1">1. połowa</option><option value="2">2. połowa</option></select><select id="statusFilter"><option value="all">Wszystkie statusy</option><option value="aktywny">Aktywne</option><option value="oferta wstrzymana">Wstrzymane</option></select><select id="highlightFilter" aria-label="Filtr podświetleń"><option value="all">Wszystkie podświetlenia</option><option value="any">Tylko podświetlone</option><option value="primary">Przewaga 3+ (potwierdzona)</option><option value="potential">Zanoszące się na 3+ (2 gole)</option><option value="high_scoring">Wysokie tempo bramkowe</option><option value="close_finish">Końcówka na styku</option></select><select id="sortSelect" disabled aria-label="Sortowanie"><option value="remaining">Najszybciej kończące się mecze</option></select></div>
+          <div id="highlightLegend" class="highlight-legend"></div>
+          <div id="tableView" class="table-wrap"><table><thead><tr><th>Do końca</th><th>Mecz</th><th>Wynik</th><th>Połowa / zegar</th><th>Start / koniec</th><th>Status</th></tr></thead><tbody id="matchesBody"></tbody></table></div>
+          <div id="compactView" class="compact-grid hidden"></div>
+          <div id="emptyState" class="empty hidden"><div class="empty-icon">◌</div><h3>Brak wykrytych meczów LIVE</h3><p>Oczekiwanie na mecze LIVE lub sprawdź, czy Chrome jest otwarty na stronie Superbet LIVE.</p><button id="clearFilters" class="secondary">Wyczyść filtry</button></div>
+        </div>
+        <aside class="panel detail-panel"><div class="panel-head"><div><h2>Szczegóły meczu</h2><span class="muted">wybierz aktywny mecz z tabeli</span></div><span id="detailLive" class="live-dot hidden">LIVE</span></div><div id="detailEmpty" class="detail-empty">Wybierz mecz, aby zobaczyć analizę automatyczną i historię odczytów.</div><div id="detailContent" class="hidden"><div class="match-title"><span id="detailCompetition" class="eyebrow">—</span><h3 id="detailTeams">—</h3><div id="detailScore" class="big-score">—</div></div><div class="detail-grid"><div><span>Połowa</span><strong id="detailHalf">—</strong></div><div><span>Czas</span><strong id="detailClock">—</strong></div><div><span>Format</span><strong id="detailFormat">—</strong></div><div><span>Do końca</span><strong id="detailRemaining">—</strong></div><div><span>Rozpoczęcie</span><strong id="detailStartTime">—</strong></div><div><span>Przew. koniec</span><strong id="detailEndTime">—</strong></div><div><span>Doliczony czas</span><strong id="detailAddedTime">—</strong></div><div><span>Przerwy</span><strong id="detailBreakTime">—</strong></div></div><div class="analysis-box"><span class="eyebrow">ANALIZA AUTOMATYCZNA</span><p id="detailAnalysis">—</p><p id="detailExtraNote" class="muted extra-note">—</p></div><div class="analysis-box"><span class="eyebrow">PRZEWIDYWANIE I TEMPO</span><p id="detailPrediction">—</p><p id="detailPredictionMeta" class="muted extra-note">—</p></div><h4>Ostatnie odczyty</h4><div id="historyList" class="history-list"></div></div></aside>
+      </section>
+    </main>
+    <footer><span>Źródło: lokalny most Chrome · tylko odczyt</span><span id="footerVersion">SUPERBETSSS LIVE Monitor · odświeżanie 20 s</span></footer>
+  </div>
+  <dialog id="settingsDialog"><form method="dialog" id="settingsForm"><div class="dialog-head"><h2>Ustawienia panelu i podświetleń</h2><button value="cancel" class="icon-btn" type="button" id="closeDialogBtn">×</button></div><div class="dialog-body"><div class="settings-row-2"><label>Odświeżanie panelu<select id="uiRefresh"><option value="20">Co 20 sekund</option></select></label><label>Motyw<select id="themeSelect"><option value="dark">Ciemny</option><option value="light">Jasny</option></select></label></div><label class="check-row global-check"><input id="highlightRowTint" type="checkbox" checked> Podświetlaj cały wiersz i kartę kolorem reguły</label><fieldset class="highlight-settings"><legend>1. Potwierdzona duża przewaga (np. 3+ goli)</legend><label class="check-row"><input id="highlightEnabled" type="checkbox" checked> Włącz podświetlanie</label><div class="settings-row-2"><label>Minimalna przewaga (gole)<input id="highlightGoalDifference" type="number" min="1" max="10" step="1" value="3"></label><label>Czas do końca ≤ (sekundy)<input id="highlightRemainingSeconds" type="number" min="15" max="600" step="15" value="90"></label></div><div class="color-picker-row"><label>Kolor podświetlenia<input id="highlightColor" type="color" value="#dc2626"></label><div class="swatches" data-target="highlightColor"><button type="button" class="swatch" data-color="#dc2626" title="Czerwony"></button><button type="button" class="swatch" data-color="#e11d48" title="Rubinowy"></button><button type="button" class="swatch" data-color="#16a34a" title="Zielony"></button><button type="button" class="swatch" data-color="#d97706" title="Bursztynowy"></button><button type="button" class="swatch" data-color="#7c3aed" title="Fioletowy"></button></div></div></fieldset><fieldset class="highlight-settings"><legend>2. Zanoszące się na 3+ goli (np. obecna przewaga 2)</legend><label class="check-row"><input id="potentialEnabled" type="checkbox" checked> Włącz wykrywanie zanoszących się meczów</label><div class="settings-row-3"><label>Obecna przewaga (gole)<input id="potentialGoalDifference" type="number" min="1" max="9" step="1" value="2"></label><label>Okno do końca ≤ (sekundy)<input id="potentialRemainingSeconds" type="number" min="30" max="1200" step="15" value="300"></label><label>Min. goli w meczu<input id="potentialMinTotalGoals" type="number" min="0" max="20" step="1" value="2"></label></div><div class="color-picker-row"><label>Kolor podświetlenia<input id="potentialColor" type="color" value="#f59e0b"></label><div class="swatches" data-target="potentialColor"><button type="button" class="swatch" data-color="#f59e0b" title="Pomarańczowy"></button><button type="button" class="swatch" data-color="#eab308" title="Złoty"></button><button type="button" class="swatch" data-color="#f97316" title="Mandarynkowy"></button><button type="button" class="swatch" data-color="#14b8a6" title="Morski"></button><button type="button" class="swatch" data-color="#ec4899" title="Różowy"></button></div></div></fieldset><fieldset class="highlight-settings"><legend>3. Wysokie tempo / rozstrzelany mecz</legend><label class="check-row"><input id="highScoringEnabled" type="checkbox" checked> Włącz podświetlanie wysokiego tempa</label><label>Minimalna suma goli w meczu<input id="highScoringMinGoals" type="number" min="2" max="20" step="1" value="5"></label><div class="color-picker-row"><label>Kolor podświetlenia<input id="highScoringColor" type="color" value="#8b5cf6"></label><div class="swatches" data-target="highScoringColor"><button type="button" class="swatch" data-color="#8b5cf6" title="Fioletowy"></button><button type="button" class="swatch" data-color="#6366f1" title="Indygo"></button><button type="button" class="swatch" data-color="#ec4899" title="Magenta"></button><button type="button" class="swatch" data-color="#10b981" title="Szmaragdowy"></button></div></div></fieldset><fieldset class="highlight-settings"><legend>4. Końcówka na styku (różnica 0–1 gola)</legend><label class="check-row"><input id="closeFinishEnabled" type="checkbox" checked> Włącz podświetlanie wyrównanej końcówki</label><label>Czas do końca ≤ (sekundy)<input id="closeFinishRemainingSeconds" type="number" min="15" max="600" step="15" value="120"></label><div class="color-picker-row"><label>Kolor podświetlenia<input id="closeFinishColor" type="color" value="#0ea5e9"></label><div class="swatches" data-target="closeFinishColor"><button type="button" class="swatch" data-color="#0ea5e9" title="Błękitny"></button><button type="button" class="swatch" data-color="#06b6d4" title="Cyjan"></button><button type="button" class="swatch" data-color="#22c55e" title="Limonkowy"></button><button type="button" class="swatch" data-color="#64748b" title="Stalowy"></button></div></div></fieldset></div><div class="dialog-actions"><button type="button" id="resetSettingsBtn" class="secondary">Przywróć domyślne</button><button value="cancel" class="secondary">Anuluj</button><button id="saveSettings" value="default" class="primary">Zapisz ustawienia</button></div></form></dialog>
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

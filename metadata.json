@@ -1,0 +1,6 @@
+{
+  "name": "SUPERBETSSS LIVE Monitor",
+  "description": "Panel WWW do obserwacyjnej analizy widocznych meczów e-piłki nożnej live.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
